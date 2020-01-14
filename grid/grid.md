@@ -1,4 +1,25 @@
-# uge&sge #
+Table of Contents (UGE/SGE)
+=================
+
+   * [uge&amp;sge](#ugesge)
+      * [I. Complex setting](#i-complex-setting)
+         * [1. qconf](#1-qconf)
+         * [2. qquota setting:](#2-qquota-setting)
+         * [3. -sprjl: ](#3--sprjl-)
+      * [2. Job priorities](#2-job-priorities)
+      * [III. Commands](#iii-commands)
+         * [1. qaccess](#1-qaccess)
+         * [2. qacct](#2-qacct)
+         * [3. qsub](#3-qsub)
+         * [4. qstat](#4-qstat)
+         * [5. qhost](#5-qhost)
+         * [6. qalter](#6-qalter)
+         * [7. qdel](#7-qdel)
+         * [8. quser](#8-quser)
+         * [9. Job suspension:](#9-job-suspension)
+      * [IV. FAQ](#iv-faq)
+      * [V. Others](#v-others)
+
 ---
 ## I. Complex setting
 man complex
@@ -52,9 +73,8 @@ acl NONE
 xacl ig-share
 ```
 
-
-
-## 2. Job priorities
+---
+## II. Job priorities
 [sge priority](http://gridscheduler.sourceforge.net/htmlman/htmlman5/sge_priority.html)
 
 SGE provide means for controlling job dispatch and run-time priorities.
@@ -105,16 +125,15 @@ The ticket policy unites functional, override and share tree policies in the tic
 
 ### 1. qaccess
 qaccess - Show overall access status for Grid Engine queues
-Usage: qaccess [-help] [-h] Hostname [-u] Username [-ul] Userlist [-P] all|Project
-    -h              Print access status on the specified machine
-    -u              Print SGE queues that the user has access to
-    -ul             Print SGE queues that the userlist has access to
-    -P              Print SGE queues that belong to the project
+    Usage: qaccess [-help] [-h] Hostname [-u] Username [-ul] Userlist [-P] all|Project
+        -h              Print access status on the specified machine
+        -u              Print SGE queues that the user has access to
+        -ul             Print SGE queues that the userlist has access to
+        -P              Print SGE queues that belong to the project
 
 ```bash
 qaccess -P <project>
 ```
-
 
 ### 2. qacct
 check finished job status with accounting file
@@ -126,52 +145,54 @@ qacct --help
 qacct -f <account_file_path>/accounting.1 -j [jobid|jobname]
 ```
 
-
 ### 3. qsub
 qsub   -  submit a batch job to Univa Grid Engine.
-> The -P (`priority`) option allows users to designate the relative priority of a batch job for selection from a queue.
--A  account_string
+* - The -P (`priority`) option allows users to designate the relative priority of a batch job for selection from a queue.
+* -A  account_string
     Define the account to which the resource consumption of the batch job should be charged.
--b y[es]|n[o]
+* -b y[es]|n[o]
     Gives the user the possibility to indicate explicitly whether command should be treated as binary or script. If the value of -b is 'y', then command  may be a binary or script.
-> -e  path_name
+* -e  path_name
     Define the path to be used for the standard error stream of the batch job.
--j y|n
+* -j y|n
     Specifies whether or not the standard error stream of the job is merged into the standard output stream. If both the -j y and the -e options are present, Univa Grid Engine sets but ignores the error-path attribute.
--shell y[es]|n[o]
+* -shell y[es]|n[o]
     -shell n causes qsub to execute the command line directly, as if by exec(2).  No command shell will be executed for the job.  This option only applies when -b y is also used.  Without -b y, -shell n has no effect.
     This option can be used to speed up execution as some overhead, like the shell startup and sourcing the shell resource files is avoided.
--v  variable_list
+* -v  variable_list
     Add to the list of variables that are *exported* to the session leader of the batch job.
--V  Specify that all of the environment variables of the process are exported to the context of the batch job.
--N option allows users to associate a name with the batch job.
+* -V  Specify that all of the environment variables of the process are exported to the context of the batch job.
+* -N option allows users to associate a name with the batch job.
 The -o option allows users to redirect the standard output stream.
 
 Multithreaded job submission use `-pe mt <n>` option
 Distributed job submission use `-pe dp <n>` option
 
- Batch Jobs (examples)
-  Submit to bnormal project, and choose a Linux machine
-> qsub -P bnormal -l arch=glinux $PATH/script.sh
+```bash
+Batch Jobs (examples)
+#  Submit to bnormal project, and choose a Linux machine
+qsub -P bnormal -l arch=glinux $PATH/script.sh
 
-  Submit to bnormal project and stay in the current working directory, and choose a AMD 64 type CPU
-> qsub -P bnormal -cwd -l cputype=amd64 script.sh
-  Submit to bhigh project, and choose a Solaris 64 bit machine which has at least 10GB of virtual memory free
-> qsub -P bhigh -l arch=solari64,mem_free=10g script.sh
+# Submit to bnormal project and stay in the current working directory, and choose a AMD 64 type CPU
+qsub -P bnormal -cwd -l cputype=amd64 script.sh
 
-  Submit to bhigh and choose a Linux machine which has the BibMem kernel installed (capable of accessing upto 3.6GB memory)
-> qsub -P bhigh -l model=PC2800 script.sh
+# Submit to bhigh project, and choose a Solaris 64 bit machine which has at least 10GB of virtual memory free
+qsub -P bhigh -l arch=solari64,mem_free=10g script.sh
 
-  specify the job option in the job script with "\#\$" like:
-> \#\$ -cwd
-> \#\$ -N jobName
+#  Submit to bhigh and choose a Linux machine which has the BibMem kernel installed (capable of accessing upto 3.6GB memory)
+qsub -P bhigh -l model=PC2800 script.sh
+
+#  specify the job option in the job script with "\#\$" like:
+\#\$ -cwd
+\#\$ -N jobName
+```
 
 
 ### 4. qstat
 qstat - show the status of Univa Grid Engine jobs and queues
 
 > -s {p|r|s|z|hu|ho|hs|hd|hj|ha|h|a}[+]
-   Prints only jobs in the specified state, any combination of states is possible.
+>   Prints only jobs in the specified state, any combination of states is possible.
 
 ```bash
 # Job Status: (Examples)
@@ -191,12 +212,11 @@ qstat -ext -u <user_id> -s p
 ### 5. qhost
  qhost - show the status of Univa Grid Engine hosts, queues, jobs
 
->
- -j   Prints all jobs `running` on the  queues  hosted  by  the shown hosts. This switch calls _-q_ implicitly. _-q_ Show information about the queues  instances hosted by the displayed hosts.
- -h display only selected hosts
- -l [resource request]
+* -j   Prints all jobs `running` on the  queues  hosted  by  the shown hosts. This switch calls _-q_ implicitly. _-q_ Show information about the queues  instances hosted by the displayed hosts.
+* -h display only selected hosts
+* -l [resource request]
       Defines the resources to be granted by the hosts which should be included in the host list output.
- **-F** [ resource_name,... ]
+* **-F** [ resource_name,... ]
     qhost will present a detailed listing of the current **resource availability** per host *with respect to* all resources (if the option argument is omitted) or with respect to those resources contained in the resource_name list. Please refer to the description of the Full Format in section OUTPUT FORMATS below  for  further detail.
 
 ```bash
@@ -219,10 +239,10 @@ qstat -ext -u <user_id> -s p
 ### 6. qalter
 qalter -  modify a pending or running batch job of Univa Grid Engine.
 >      qalter [-a date_time][-A account_string][-c interval][-e path_name]
-                [-h hold_list][-j join_list][-k keep_list][-l resource_list]
-                [-m mail_options][-M mail_list][-N name][-o path_name]
-                [-p priority][-r y|n][-S path_name_list][-u user_list]
-                job_identifier ...
+>                [-h hold_list][-j join_list][-k keep_list][-l resource_list]
+>                [-m mail_options][-M mail_list][-N name][-o path_name]
+>                [-p priority][-r y|n][-S path_name_list][-u user_list]
+>                job_identifier ...
 
 Job Alert job:
 qalter: use the same option and argument as the "qsub" to alter the queued job
@@ -240,11 +260,10 @@ qalter -w p 9068517
 ```
 
 The '-w' option:
->  -w e|w|n|p|v
-           Available for qsub, qsh, qrsh, qlogin and qalter. Specifies `a validation level applied to the job` to be submitted (qsub, qlogin, and qsh) or the specified queued job (qalter).  The information displayed indicates whether the job can possibly be scheduled assuming an empty system with no other jobs. Resource requests exceeding the configured maximal thresholds or requesting unavailable resource attributes are possible causes for jobs to fail this validation.
+    -w e|w|n|p|v
+        Available for qsub, qsh, qrsh, qlogin and qalter. Specifies `a validation level applied to the job` to be submitted (qsub, qlogin, and qsh) or the specified queued job (qalter).  The information displayed indicates whether the job can possibly be scheduled assuming an empty system with no other jobs. Resource requests exceeding the configured maximal thresholds or requesting unavailable resource attributes are possible causes for jobs to fail this validation.
 
 The specifiers e, w, n and v define the following validation modes:
-
        'e'  error - jobs with invalid requests will be
             rejected.
        'w'  warning - only a warning will be displayed
@@ -258,11 +277,8 @@ The specifiers e, w, n and v define the following validation modes:
        'v'  verify - does not submit the job but prints a validation report based on an empty cluster. Note, that the necessary checks are performance consuming and hence the checking is switched  off  by  default. It  should  also  be  noted  that  load  values are not taken into account with the verification since they are assumed to be too volatile. To cause -w e verification to be passed at submission time, it is possible to specify non-volatile values (non-consumables) or maximum values (consumables) in complex_values.
 
 
-
-### 7. qdel
-> qdel - delete batch jobs
-    qdel [ -f ] [ -help ] [ -u wc_user_list ] [ wc_job_range_list ] [ -t task_id_range ]
-
+### 7. qdel - delete batch jobs
+>    qdel [ -f ] [ -help ] [ -u wc_user_list ] [ wc_job_range_list ] [ -t task_id_range ]
 
 ```bash
 qdel -u <user_id>
@@ -272,14 +288,14 @@ qdel <job_id>
 ### 8. quser
 quser - Show access/resource status for Grid Engine users
 
-> quser [-help] [-l ResourceFlag ] [-u Username] [-ext]
-         -help Print this usage message;
-         -u    Username;
-         -l    ResourceFlag;
-         -sf <num> -  slots free
-         -pe mt <num> - parallel environment mt usage
-         -ext  Show rush queues & extended output-
-               (OS KERNEL CPU MODEL QSC)
+    quser [-help] [-l ResourceFlag ] [-u Username] [-ext]
+             -help Print this usage message;
+             -u    Username;
+             -l    ResourceFlag;
+             -sf <num> -  slots free
+             -pe mt <num> - parallel environment mt usage
+             -ext  Show rush queues & extended output-
+                   (OS KERNEL CPU MODEL QSC)
 
 
 ### 9. Job suspension:
