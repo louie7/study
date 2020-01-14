@@ -1,12 +1,12 @@
 Table of Contents (UGE/SGE)
 =================
 
-   * [uge&amp;sge](#ugesge)
+   * [Table of Contents (UGE/SGE)](#table-of-contents-ugesge)
       * [I. Complex setting](#i-complex-setting)
          * [1. qconf](#1-qconf)
          * [2. qquota setting:](#2-qquota-setting)
          * [3. -sprjl: ](#3--sprjl-)
-      * [2. Job priorities](#2-job-priorities)
+      * [II. Job priorities](#ii-job-priorities)
       * [III. Commands](#iii-commands)
          * [1. qaccess](#1-qaccess)
          * [2. qacct](#2-qacct)
@@ -14,11 +14,27 @@ Table of Contents (UGE/SGE)
          * [4. qstat](#4-qstat)
          * [5. qhost](#5-qhost)
          * [6. qalter](#6-qalter)
-         * [7. qdel](#7-qdel)
+         * [7. qdel - delete batch jobs](#7-qdel---delete-batch-jobs)
          * [8. quser](#8-quser)
          * [9. Job suspension:](#9-job-suspension)
       * [IV. FAQ](#iv-faq)
+         * [1. General errors](#1-general-errors)
+      * [Quota reached](#quota-reached)
+         * [2. Running Jobs](#2-running-jobs)
+            * [1. "Error: No suitable queues"](#1-error-no-suitable-queues)
+            * [2. No output or truncated output](#2-no-output-or-truncated-output)
+            * [3. Eqw: Job waiting in error state](#3-eqw-job-waiting-in-error-state)
+            * [4. My job is stuck in the 'dr' state](#4-my-job-is-stuck-in-the-dr-state)
+            * [5. Job won't start](#5-job-wont-start)
+            * [6. Rr: Job re-started](#6-rr-job-re-started)
+            * [7. Why doesn't my job start right away?](#7-why-doesnt-my-job-start-right-away)
+            * [8. How to merge output files](#8-how-to-merge-output-files)
+            * [9. Warning: No xauth data; using fake authentication data for X11 forwarding](#9-warning-no-xauth-data-using-fake-authentication-data-for-x11-forwarding)
+            * [10. I need to extend the run-time limit for a running job](#10-i-need-to-extend-the-run-time-limit-for-a-running-job)
       * [V. Others](#v-others)
+         * [1. man sge_conf](#1-man-sge_conf)
+         * [2. man sge_flags](#2-man-sge_flags)
+
 
 ---
 ## I. Complex setting
@@ -302,8 +318,8 @@ quser - Show access/resource status for Grid Engine users
 
 ### 9. Job suspension:
 ```bash
-    qhold &lt;job id&gt;
-    qrls &lt;job id&gt;
+    qhold <job_id>
+    qrls <job_id>
 ```
 
 ---
@@ -458,7 +474,8 @@ You cannot alter parameters of a running job. If you are sure that your jobs wil
 
 ---
 ## V. Others
-man sge_conf
-man sge_flags to know which resource flags are available:
+### 1. man sge_conf
+### 2. man sge_flags 
+to know which resource flags are available:
 vg, longidle, os_version, os_minor, kernel_version, os_distribution, model, os_bit, cputype, cpu_code, cpu_cache, vm, ht, regress/build, qsc, project, pool, mem_free, mem_inst, ncps, scratch_free, DEFAULT, arch, num_proc, swap_free, virtual_free, mem_used, swap_used, virtual_used, mem_total, swap_total, virtual_total,...
 
