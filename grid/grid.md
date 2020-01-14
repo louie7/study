@@ -244,6 +244,9 @@ qstat -ext -u <user_id> -s p
    ...
    ...
 
+# check host availible slots
+qhost -q -h <host>
+
 # get list of the resource 'project' availablility defination from *'qconf -sc'*:
 (s_linux_sge; qhost -F project | fgrep 'project='  | sort -u  )
 
