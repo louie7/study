@@ -7,12 +7,12 @@ Table of Contents
    * [II. instance](#ii-instance)
       * [1. <a href="https://www.gnu.org/software/gawk/manual/html_node/Quoting.html" rel="nofollow">print single quota in awk </a>](#1-print-single-quota-in-awk-)
       * [2.  Generate valgrind mapping files by calling external 'sh' pipe](#2--generate-valgrind-mapping-files-by-calling-external-sh-pipe)
-      * [3. regression log file parse](#3-regression-log-file-parse)
+      * [3.  regression log file parse](#3-regression-log-file-parse)
       * [4.  redirecting output of print and printf into file (print items &gt; output-file )](#4--redirecting-output-of-print-and-printf-into-file-print-items--output-file-)
       * [5.  replace specified column from other file](#5--replace-specified-column-from-other-file)
       * [6.  find the record didn't exist in 'new.txt' file](#6--find-the-record-didnt-exist-in-newtxt-file)
       * [7.  find the previous line in the pattern](#7--find-the-previous-line-in-the-pattern)
-      * [8.  compare file1 1<del>4 char with file2 2</del>5, if they are same, merge file2 2nd column and file1](#8--compare-file1-14-char-with-file2-25-if-they-are-same-merge-file2-2nd-column-and-file1)
+      * [8.  compare file1 char with file2 , if they are same, merge file2 2nd column and file1](#8--compare-file1-char-with-file2-if-they-are-same-merge-file2-2nd-column-and-file1)
 
 
 # I. tips #
@@ -36,8 +36,39 @@ awk '{print "'"$LOGNAME"'"}' yourfile
 luyi
 
 ```
- 
- 
+
+## 2. [Awk tips, tricks, pitfalls in awk] (https://catonmat.net/ten-awk-tips-tricks-and-pitfalls#awk_shorten_pipes)
+### 2.1 Here are some examples of typical awk idioms, using only conditions: 
+```bash
+awk 'NR % 6'            # prints all lines except those divisible by 6
+awk 'NR > 5'            # prints from line 6 onwards (like tail -n +6, or sed '1,5d')
+awk '$2 == "foo"'       # prints lines where the second field is "foo"
+awk 'NF >= 6'           # prints lines with 6 or more fields
+awk '/foo/ && /bar/'    # prints lines that match /foo/ and /bar/, in any order
+awk '/foo/ && !/bar/'   # prints lines that match /foo/ but not /bar/
+awk '/foo/ || /bar/'    # prints lines that match /foo/ or /bar/ (like grep -e 'foo' -e 'bar')
+awk '/foo/,/bar/'       # prints from line matching /foo/ to line matching /bar/, inclusive
+awk 'NF'                # prints only nonempty lines (or: removes empty lines, where NF==0)
+awk 'NF--'              # removes last field and prints the line
+awk '$0 = NR" "$0'      # prepends line numbers (assignments are valid in conditions)
+```
+
+```bash
+## template
+awk 'NR==FNR { # some actions; next} # other condition {# other actions}' file1 file2
+
+## prints lines that are both in file1 and file2 (intersection)
+## The "next" at the end of the first action block is needed to prevent the condition in "# other condition" from being evaluated, and the actions in "# other actions" from being executed while awk is reading the first file.
+awk 'NR==FNR{a[$0];next} $0 in a' file1 file2
+
+# use information from a map file to modify a data file
+awk 'NR==FNR{a[$1]=$2;next} {$3=a[$3]}1' mapfile datafile
+
+## TODO
+
+
+```
+
 
 # II. instance #
 ## 1. [print single quota in awk ]( https://www.gnu.org/software/gawk/manual/html_node/Quoting.html)
@@ -79,7 +110,6 @@ awk -F':' '{ if ($0 ~ /golden/ && $NF ~ /FAIL/ ){t=gensub("\\(","",1,$1); print 
 ## get failure case which is not in the reference set
 gawk -F':'  'BEGIN{ regex="[[:space:]]+\\(nightly\\/" }; NR==FNR{ a[$1]=1 }  NR>FNR{if ($0 ~ regex){f=gensub(regex,"","1", $1); if  (! (f in a) ){print f, $(NF-1), $NF  }  }}'   <ref_path>/Failed.latest   Failed.latest
 
-
 ```
 
 ## 4.  redirecting output of print and printf into file (print items > output-file )
@@ -107,9 +137,34 @@ awk '/vPattern/&&NR>2{print a[NR%3]"\n"$0}{a[NR%3]=$0}' 
 ```
 
 
-## 8.  compare file1 1~4 char with file2 2~5, if they are same, merge file2 2nd column and file1
+## 8.  compare file1 1 to 4 char with file2 2 to 5, if they are same, merge file2 2nd column and file1
 ```bash
 awk  'NR==FNR{a[substr($1,2,5)]=$2} NR>FNR&&a[b=substr($1,1,4)]{print $0, a[b]}' file2 file1
+```
+
+
+## 9.  call external bash command to get same duplicate file size based on md5sum 
+```bash
+find dir/ -name '*' -type f -print0 | xargs -0 -n2 -P2 -I{} /usr/bin/md5sum "{}" > file_md5.txt
+awk '{
+        if ($1 in a) { a[$1] = sprint("%s\t%s\t", a[$1], $2); d[$1]=a[$1]; 
+            if (c[$1] = 1){ cmd=sprintf("%s %s ", "du", $2; cmd | getline sizeinf; close(cmd);
+                size=gensub(/(.*)\s+.+/, "\\1", 1, sizeinfo); };
+                c[$1] += 1;
+        } else {
+            a[$1] = $2; c[$1] += 1;
+        }
+    }
+    END{
+        printf "Count\tWaste\tMD5\tTests\n";
+        for (m in d){
+            printf "%d\t%d\t%s\t%s\n", c[m], s[m]*c[m], m, d[m]
+            }
+        }
+    ' file_md5.txt
+
+
+
 ```
 
  
