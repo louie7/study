@@ -37,6 +37,7 @@ perl -MJSON::backportPP  -e  'BEGIN{push @INC, "/u/yilu/SWE_yilu/step/dev/lib/pe
 ## print the items in the dirs by filter some regex pattern
 perl -e 'opendir(DH, "/dir2open/XXX"); @f = grep { $_ !~ m/bin*|~$|\.{1,2}$/ } readdir(DH); print "@f";'
 ```
+
 ## 2.4 perl reference/alias usage example 
 ```perl
 ## print ENV key value pairs
@@ -53,11 +54,13 @@ perl -MCwd=abs_path -MFile::Basename -e '$p = $org = "<path>/D20151234_"; while 
 ```bash
 perl -e 'foreach $k (keys %ENV) {print "$k -->  $ENV{$k} \n "}'
 ```
+
 ## 2.7 list all used modules (without condition ones)
 ```perl
 ## %INC contains all modules that Perl load by do, require or use
 perl -MFile::Path -e ' while( ($k,$v) = each( %INC )){ print $k, $v, "\n";}'
 ```
+
 ## 2.8 grep implement grep as in bash by perl
 ```perl
 #!/usr/bin/perl
@@ -75,6 +78,13 @@ while(my $line=<$fh>) {
 }
 close($fh);
 print @lines;
+```
+
+## 2.9 mapping char to num, use map to construct mapping table
+```perl
+    perl -e '%h; $n=1; for $i ((a..z)){$h{$i}=$n;$n++}; $s="ab"; @a=reverse split("", $s); $x = 0; $sum=0; for $i (@a){$tmp = $h{$i} * 26 ** $x; print $tmp,"EE"; $sum += $tmp; $x++;}; print $sum;'
+
+    perl -MData::Dumper -e '$n=0;  %h = map {;$n++;  $_ => $n;} (a..z); print Dumper(\%h);   $s="ab";  @a=reverse split("", $s);  $x = 0; $sum=0; for $i (@a){$tmp = $h{$i} * 26 ** $x; $sum += $tmp; $x++;}; print "${s}: is $sum";'
 ```
 
 ---
@@ -120,12 +130,12 @@ $output = `cmd 2>&1`;
 $rec = join(':', $login,$passwd,$uid,$gid,$gcos,$home,$shell);
 ```
 
-
 ## 3.7 Adjust the time format
 ```perl
 perl  -MPOSIX -e '$file="aa";$sec=(stat($file))[9]; printf "file %s updated at %s\n", $file,  strftime( "%H:%M:%S_%Y/%m/%d", localtime($sec));'
 ## file aa updated at 08:00:00_1970/01/01 
 ```
+
 ## 3.8 check if the hash is empty
 If you evaluate a hash in _scalar_ context, it returns false if the hash is empty.
 If there are any key/value pairs, it returns true; more precisely, the value returned is a string consisting of the number of used buckets and the number of allocated buckets, separated by a slash.
@@ -156,16 +166,7 @@ PATH=$(echo "$PATH" | awk -v RS=':' -v ORS=":" '!a[$1]++{if (NR > 1) printf ORS;
 ## 3.10 Get a modified copy of a string without changing the original one
 (my $new = $original) =~ s/foo/bar/;
 
-
----
-~~~
-
-
-
-
-map 成一个hash来处理数据。
-
-## sort the value of the hash by value comparation
+## 3.11 sort the value of the hash by value comparation
 In list context, this sorts the LIST and returns the sorted list value.
 In scalar context, the behaviour of sort() is undefined.
 ```perl
@@ -176,13 +177,15 @@ foreach my $case ( sort { $tcStatus{$::b} <=> $tcStatus{$::a}}  keys %tcStatus )
 
 We almost always want to sort the keys of the hash. 
 ```perl
-foreach my $name (sort { $planets{$a} <=> $planets{$b} } keys %planets) {
-        printf "%-8s %s\n", $name, $planets{$name};
-}
+## sort the keys by its associated value. Then get the values (e.g. by using a hash slice).
+my @keys = sort { $h{$a} <=> $h{$b} } keys(%h);
+my @vals = @h{@keys};
+## Or if you have a hash reference.
+my @keys = sort { $h->{$a} <=> $h->{$b} } keys(%$h);
+my @vals = @{$h}{@keys};
 ```
 
 In some cases this is OK, in other cases we will want to make sure keys that have the same value will be sorted according the ASCII table. For that case we have the following code:
-
 ```perl
 foreach my $name (sort { $planets{$a} <=> $planets{$b} or $a cmp $b } keys %planets) {
         printf "%-8s %s\n", $name, $planets{$name};
@@ -195,147 +198,12 @@ value, ASCII:     foreach my $key (sort { $hash{$a} cmp $hash{$b} } keys %hash) 
 value, numeric:   foreach my $key (sort { $hash{$a} <=> $hash{$b} } keys %hash)  { }
 ```
 
-
-
-# Exp
-
-
-
 ---
+~~~
 
 
-# Ctx
 
 
-
-
-
-
-
-
-
-
-
-
-
----
-
-## Pipe
-管道
-（一）父进程写往子进程的管道
-
-看看如下几句：
-
-open(FOO, "|tr '[a-z]' '[A-Z]'");
-open(FOO, '|-', "tr '[a-z]' '[A-Z]'");
-open(FOO, '|-') || exec 'tr', '[a-z]', '[A-Z]';
-
-它们是一样的吗？答案是：当然一样。
-为什么？为什么？
-让我们看看第一个：
-
-open(FOO, "|tr '[a-z]' '[A-Z]'");
-
-tr是什么？它是个unix的shell命令。它在管道右边，意味着什么？笨啊，当然意味着从管道左边接受输入啦。
-如果你还不清楚，那么在shell里运行:
-echo 'abcd' |tr '[a-z]' '[A-Z]'
-ABCD
-
-看到没有，你输入的abcd通过管道传给tr后，就处理成ABCD了。
-那么，perl里也一样呀。open(FOO, "|tr '[a-z]' '[A-Z]'");它打开一个管道，并将数据通过句柄FOO传递给tr命令。
-这里有点巧妙，实际上发生了1个fork过程。tr命令实际上是在子进程里完成的啦。
-对了，有人问了，这个子进程与fork出来的有何不同？
-主要的不同就在于子进程的STDIN被重定向到管道了，也就是说它从FOO句柄接受输入，然后它将结果输出到STDOUT，这样你在屏幕上就可见到ABCD啦。
-
-明白了吗？很简单吧，:p 那接着看第2个：
-open(FOO, '|-', "tr '[a-z]' '[A-Z]'");
-
-这个与第1个其实一样的，只是写法不同啦！不过很多人被这个|-迷惑住了，以后再见到，就不要怕怕了哦，简单的把这个'-'想象成后面的shell命令就可以了呀。
-好了，再看看第3个：
-
-open(FOO, '|-') || exec 'tr', '[a-z]', '[A-Z]';
-
-晕，这是什么意思啊？别着急，听偶慢慢道来。
-已经说了哦，open过程中实际会发生一个fork过程，这个fork对父进程返回子进程的pid，通常是个正整数；对子进程返回0。所以：
-my $pid=open(FOO,'|-');
-若$pid > 0那就表示位于父进程里啦。||是什么意思呀？||是个or运算符，它后面的条件与前面的条件相反，前面的是$pid >;0，那后面的就是$pid==0啦，这样你就明白了吧，偶已经位于子进程里了。
-
-那exec呢？exec与system意思差不多，不同的是exec执行的命令完全替代了fork出来的子进程，除了进程号一样外，其他的代码段，堆栈段什么的都替换掉了。
-如果你不明白，那么翻翻仙子以前的关于exec的解释啦；什么？还不明白？那就把它想象成system()好啦。
-
-所以这里你应该明白啦：
-
-open(FOO, '|-') || exec 'tr', '[a-z]', '[A-Z]';
-exec从管道接受数据，也就是说在子进程里，从FOO句柄接受数据，转换后再将结果写往标准输出，跟前面2个例子一样呀。
-
-不过仙子提醒大家，上述3种情况下，你应该记住：
-
-
-1）在父进程里，对FOO句柄操作的行为与正常的一致，例如，你这样将数据写入FOO句柄：
-print FOO $str;
-
-2）在子进程里，STDIN被重定向了哦。它默认从管道接受数据了。但STDOUT不变。不要混淆了哦，:-)
-
-
-（二）子进程写往父进程的管道
-
-
-同样的，看看如下代码：
-
-
-open(FOO, "cat -n '$file'|");
-open(FOO, '-|', "cat -n '$file'");
-open(FOO, '-|') || exec 'cat', '-n', $file;
-
-
-这把大家都聪明了，它们肯定是一样的呀。
-
-
-让我们先看看第1句，它简单点哦。
-
-open(FOO, "cat -n '$file'|");
-
-它的意思其实与前面的差不多哦，cat执行了外部shell命令，等于是fork了一个子进程，它将输出通过管道发送给父进程。如果你还不是很理解，那么看下这个shell命令:
-
-
-cat -n $file | more
-
-
-明白了吗？cat的结果通过管道发送给more了。
-那么这里也一样呀，cat -n '$file'的结果写往了FOO句柄，父进程正常的读取这个句柄，就可以获取到cat的输出啦。父进程里这样写就可以啦：
-
-
-print my $line=<FOO>;;
-
-
-好，接着看第2句：
-
-
-open(FOO, '-|', "cat -n '$file'");
-
-
-又是'-|'，开始晕了吧？不要晕，它与第1句一样呀，写法不同罢了。记着：把'-'想象成后面的shell命令。
-
-
-再看第3句哦：
-
-
-open(FOO, '-|') || exec 'cat', '-n', $file;
-
-
-这里与前面的一样哦，如果你理解了fork，理解了||，理解了exec，那么看它就清清楚楚啦。作用还是一样的哦，||后面的子进程将结果写往FOO句柄，父进程就从FOO句柄接受数据了。
-
-
-仙子再次提醒大家，在上述3种情况下要注意：
-1）父进程对FOO句柄的操作还是与正常的一致，例如，它这样接受FOO句柄的数据：
-
-my $line=<FOO>;;
-
-2）子进程的STDOUT被重定向了，也就是说，子进程的任何输出都会写往管道了。
-
-好了，到这里你应该大概清楚open pipe的方式了吧？还不太明白？那么去看看perldoc的相关手册吧。
-
-哦，还有个问题，能不能把子进程的STDIN和STDOUT同时定向到FOO句柄呀？晕，那就是双向管道了哦，仙子不太明白这方面的应用，看看IPC的相关文档吧。
 
 
 Grep

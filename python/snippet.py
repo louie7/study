@@ -3,6 +3,7 @@
 import sys
 import os
 import re
+import time
 
 ## leetcode
 class Solution(object):
@@ -296,12 +297,25 @@ def orderedbox(num, boxlist):
     # l = sorted(s, key=lambda x: (re.search(old,x), re.search(new,x)))
     # print l,
     
-    
+class CallingCounter(object):
+    '''decorator class to show how many times test are called'''
+    def __init__ (self, func):
+        self.func = func
+        self.count = 0
+
+    def __call__ (self, *args, **kwargs):
+        self.count += 1
+        return self.func(*args, **kwargs)
+
+@CallingCounter
+def test():
+    print('called by someone')
 
 if __name__ == '__main__':
     boxlist = ['ykc 82 01', 'eo first qpx', '09z cat hamster', '06f 12 25 6', 'az0 first qpx',
                 '236 cat dog rabbit snake']
-    orderedbox(6, boxlist)
+    # orderedbox(6, boxlist)
+    # processline()
     # ltcode = Solution()
     # ltcode.twoSum([3,3], 6) 
     # ltcode.twoSum([2,5,7,11], 9) 
@@ -319,4 +333,9 @@ if __name__ == '__main__':
     # get_intersection_set(arr, nums)
 
     ## run_Linklist()
+
+    ## test decorator
+    test()
+    test()
+    print("call by {} times".format(test.count))
 

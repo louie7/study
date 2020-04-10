@@ -148,8 +148,9 @@ awk  'NR==FNR{a[substr($1,2,5)]=$2} NR>FNR&&a[b=substr($1,1,4)]{print $0, a[b]}
 find dir/ -name '*' -type f -print0 | xargs -0 -n2 -P2 -I{} /usr/bin/md5sum "{}" > file_md5.txt
 awk '{
         if ($1 in a) { a[$1] = sprint("%s\t%s\t", a[$1], $2); d[$1]=a[$1]; 
-            if (c[$1] = 1){ cmd=sprintf("%s %s ", "du", $2; cmd | getline sizeinf; close(cmd);
+            if (c[$1] = 1){ cmd=sprintf("%s \"%s\" ", "du", $2); cmd | getline sizeinf; close(cmd);
                 size=gensub(/(.*)\s+.+/, "\\1", 1, sizeinfo); };
+                s[$1] = size;
                 c[$1] += 1;
         } else {
             a[$1] = $2; c[$1] += 1;
@@ -160,11 +161,8 @@ awk '{
         for (m in d){
             printf "%d\t%d\t%s\t%s\n", c[m], s[m]*c[m], m, d[m]
             }
-        }
+    }
     ' file_md5.txt
-
-
-
 ```
 
  
