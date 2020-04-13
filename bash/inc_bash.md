@@ -1,41 +1,56 @@
+Table of Contents
+=================
 
----
+   * [Table of Contents](#table-of-contents)
+   * [I. <a href="https://www.gnu.org/software/bash/manual/bash.html" rel="nofollow">bash Manual</a>](#i-bash-manual)
+      * [1.1 pipeline](#11-pipeline)
+      * [1.2 Lists](#12-lists)
+      * [1.3 Subshell](#13-subshell)
+      * [1.4 Job Control Basics](#14-job-control-basics)
+   * [II. pitfalls](#ii-pitfalls)
+         * [2.1 passing args](#21-passing-args)
+         * [2.2 function def (portable)](#22-function-def-portable)
+         * [2.3 string compare to avoid pattern match without quote](#23-string-compare-to-avoid-pattern-match-without-quote)
+   * [III. FAQ &amp; Context](#iii-faq--context)
+      * [3.1 What startup files are read by the shell? (shell configuration)](#31-what-startup-files-are-read-by-the-shell-shell-configuration)
+
+
 # I. [bash Manual](https://www.gnu.org/software/bash/manual/bash.html)
 ## 1.1 pipeline
 + A pipeline is a sequence of one or more commands separated by the character |.  The format for a pipeline is:
 ```bash
 [time [-p]] [ ! ] command [ | command2 ... ]
 ```
-	The standard output of command is connected via a pipe to the standard input of command2.  This connection is performed **before** any redirections specified by the command (see REDIRECTION below). 
-	_The return status_ of a pipeline is the exit status of the last command, unless the pipefail option is enabled.  
-	If pipefail is enabled, the pipeline's return status is the value of the last (rightmost) command to exit with a non-zero status, or zero if all commands exit successfully.  
+    The standard output of command is connected via a pipe to the standard input of command2.  This connection is performed **before** any redirections specified by the command (see REDIRECTION below). 
+    _The return status_ of a pipeline is the exit status of the last command, unless the pipefail option is enabled.  
+    If pipefail is enabled, the pipeline's return status is the value of the last (rightmost) command to exit with a non-zero status, or zero if all commands exit successfully.  
 
-	If the reserved word! precedes a pipeline, the exit status of that pipeline is the logical negation of the exit status as described above. The shell waits for all commands in the pipeline to terminate before returning a value.
-	If the _time_ reserved word precedes a pipeline, the elapsed as well as user and system time consumed by its execution are reported when the  pipeline  terminates.   
-	The  -p  option changes the output format to that specified by POSIX.  
-	The TIMEFORMAT variable may be set to a format string that specifies how the timing information should be displayed; see the description of TIMEFORMAT under Shell Variables below. Each command in a pipeline is executed as __a separate process__ (i.e., in a subshell).
+    If the reserved word! precedes a pipeline, the exit status of that pipeline is the logical negation of the exit status as described above. The shell waits for all commands in the pipeline to terminate before returning a value.
+    If the _time_ reserved word precedes a pipeline, the elapsed as well as user and system time consumed by its execution are reported when the  pipeline  terminates.   
+    The  -p  option changes the output format to that specified by POSIX.  
+    The TIMEFORMAT variable may be set to a format string that specifies how the timing information should be displayed; see the description of TIMEFORMAT under Shell Variables below. Each command in a pipeline is executed as __a separate process__ (i.e., in a subshell).
 
 ## 1.2 Lists
 + A list is a sequence of one or more pipelines separated by one of the operators `;, &, &&, or ||`, and optionally terminated by one of `;, &, or <newline>`.
-	If a command is terminated by the control operator `&`, the shell executes the command in the background in a subshell.  The shell __does not wait__ for the command to finish,  and the return status is `0`.  
-	Commands separated by a `;` are executed sequentially; the shell __waits__ for each command to terminate in turn. The return status is the exit status of the last command executed.
+    If a command is terminated by the control operator `&`, the shell executes the command in the background in a subshell.  The shell __does not wait__ for the command to finish,  and the return status is `0`.  
+    Commands separated by a `;` are executed sequentially; the shell __waits__ for each command to terminate in turn. The return status is the exit status of the last command executed.
 
 + (list) 
-	list is executed in a subshell environment (see COMMAND EXECUTION ENVIRONMENT below).  
-	Variable assignments and builtin commands that affect the shell's environment __do not__ remain in effect after the command completes.  The return status is the exit status of list.
+    list is executed in a subshell environment (see COMMAND EXECUTION ENVIRONMENT below).  
+    Variable assignments and builtin commands that affect the shell's environment __do not__ remain in effect after the command completes.  The return status is the exit status of list.
 
 
 + { list; } 
-	list is simply executed in the _current_ shell environment.  list __must__ be terminated with a newline or semicolon.  This is known as a group command.
-	The return status is the exit status of list.  Note that unlike the metacharacters ( and ), { and } are reserved words and must occur where a reserved word is permitted to be recognized. Since they do not cause a word break, they must be separated from list by whitespace.
+    list is simply executed in the _current_ shell environment.  list __must__ be terminated with a newline or semicolon.  This is known as a group command.
+    The return status is the exit status of list.  Note that unlike the metacharacters ( and ), { and } are reserved words and must occur where a reserved word is permitted to be recognized. Since they do not cause a word break, they must be separated from list by whitespace.
 
 + ((expression))
-	The expression is evaluated according to the rules described below under _ARITHMETIC EVALUATION_.  
-	If the value of  the  expression  is  non-zero,  the return status is 0; otherwise the return status is 1.  This is exactly equivalent to let "expression".
+    The expression is evaluated according to the rules described below under _ARITHMETIC EVALUATION_.  
+    If the value of  the  expression  is  non-zero,  the return status is 0; otherwise the return status is 1.  This is exactly equivalent to let "expression".
 
 + [[ expression ]]
-	Return  a status of 0 or 1 depending on the evaluation of the conditional expression expression.  Expressions are composed of the primaries described below under _CONDITIONAL EXPRESSIONS_.  
-	Word splitting and pathname expansion are not performed on the words between the [[ and  ]];  tilde  expansion, parameter  and  variable  expansion,  arithmetic expansion, command substitution, process substitution, and quote removal are performed.  Conditional operators such as -f must be unquoted to be recognized as primaries.
+    Return  a status of 0 or 1 depending on the evaluation of the conditional expression expression.  Expressions are composed of the primaries described below under _CONDITIONAL EXPRESSIONS_.  
+    Word splitting and pathname expansion are not performed on the words between the [[ and  ]];  tilde  expansion, parameter  and  variable  expansion,  arithmetic expansion, command substitution, process substitution, and quote removal are performed.  Conditional operators such as -f must be unquoted to be recognized as primaries.
 
 
 ## 1.3 Subshell
@@ -76,7 +91,7 @@ Subshells spawned to execute command substitutions inherit the value of the -e o
 
 If a command is followed by a ‘&’ and job control is not active, the default standard input for the command is the empty file /dev/null. Otherwise, the invoked command `inherits` the file descriptors of the calling shell as modified by redirections.
 
-## 1.3 Job Control Basics
+## 1.4 Job Control Basics
 
 + [1] 25647
 indicating that this job is job number 1 and that the process ID of the last process in the pipeline associated with this job is 25647. All of the processes in a single pipeline are members of the same job. Bash uses the job abstraction as the basis for job control.#---
@@ -86,159 +101,31 @@ indicating that this job is job number 1 and that the process ID of the last pro
 
 ---
 # II. pitfalls
-+ [pitfalls1](http://kodango.com/bash-pitfalls-part-1) 
-+ [pitfalls2](http://kodango.com/bash-pitfalls-part-2)
-+ [pitfalls3](http://kodango.com/bash-pitfalls-part-3) 
-+ [pitfalls4](http://kodango.com/bash-pitfalls-part-4)
-
-### TODO FIXME
-## "*.mp3"  vs *.mp3
-> for i in $(ls *.mp3)
-    ▪ 使用命令展开时不带引号，其执行结果会使用IFS作为分隔符，拆分成参数传递给for循环处理；
-    ▪ 不应该让脚本去解析ls命令的结果；
-
----
-### copy if filename contain '-'
-文件名中包含短横'-', 第一种方法是在命令和参数之间加上--，这种语法告诉命令不要继续对--之后的内容进行命令行参数/选项解析：
+[bash pitfalls](http://mywiki.wooledge.org/BashPitfalls)
+### 2.1 passing args
 ```bash
-$cp -- "$file" "$target"
-```
-另外一种方法是，确保文件名都使用相对或者绝对的路径，以目录开头：
-```bash
-for i in ./*.mp3; 
-    do
-    cp "$i" /target
-    
-    ...
-Done
-```
-
----
-### comparison in the condition
-```bash
- [ $foo = "bar" ]
-```
-这个例子在以下情况下会出错：
-    ▪ 如果[中的变量不存在，或者为空，这个时候上面的例子最终解析结果是：
-    [ = "bar" ] # 错误!
-    并且执行会出错：unary operator expected，因为=是二元操作符，它需要左右各一个操作数。
-    ▪ 如果变量值包含空格，它首先在执行之前进行单词拆分，因此[命令看到的样子可能是这样的：
-    [ multiple words here = "bar" ];
-
-POSIX way:
-```bash
-[ "$foo" = bar ]
-```
-
-```bash
-[ "$foo" = bar && "$bar" = foo ]
-```
-    不要在test命令内部使用&&，Bash解析器会把你的命令分隔成两个命令，在&&之前和之后。你应该使用下面的写法：
-```bash
-    [ bar = "$foo" ] && [ foo = "$bar" ] # POSIX
-    [[ $foo = bar && $bar = foo ]]       # Bash / Ksh
-```
-
----
-```bash
-grep foo bar | while read -r; do ((count++)); done
-```
-这种写法初看没有问题，但是你会发现当执行完后，count变量并没有变化。原因是管道后面的命令是在一个子Shell中执行的。
-
----
-### do not read and write file at the same pipe
-```bash
-cat file | sed s/foo/bar/ > file
-```
-你不应该在一个管道中，从一个文件读的同时，再往相同的文件里面写，这样的后果是未知的。你可以为此创建一个临时文件，这种做法比较安全可靠：
-```bash
-sed 's/foo/bar/g' file > tmpfile && mv tmpfile file
-```
-
----
-### check *cd* if it's successful
-```bash
-cd /foo; bar
-```
-如果你不检查 cd 命令执行是否成功，你可以会在错误的目录下执行 bar 命令，这有可能会带来灾难，比如 bar 命令是 rm -rf *。
-如果你想要在标准输出同时输出自定义的错误提示，可以使用复合命令（command grouping）:
-```bash
-    cd /net || { echo "Can't read /net. Make sure you've logged in to the Samba network, and try again."; exit 1; }
-
-    do_stuff
-
-    more_stuff
-```
-
-下面的写法，在循环中 `fork 了一个子 shell 进程`，子 shell 进程中的 cd 命令仅会影响当前 shell的环境变量，所以父进程中的环境命令不会被改变；当执行到下一次循环时，无论之前的 cd命令有没有执行成功，我们会回到相同的当前目录。这种写法相较前面的用法，代码更加干净。
-```bash
-    ## http://mywiki.wooledge.org/BashGuide/CompoundCommands
-    
-    find ... -type d -print0 | while IFS= read -r -d '' subdir; 
-    do
-   
-        (cd "$subdir" || exit; whatever; ...)
-
-    done
-```
-
----
-### double quota for parameter
-```bash
-for arg in $*
-    ## 正确的写法：
-for x in "$@"; 
-do
+for x in "$@"; do
+    ## "$@" equal to "$1" "$2" "$3" ...
     echo "parameter: '$x'"
-Done
+done
 ```
 
----
-### function defination format
+### 2.2 function def (portable)
 ```bash
-function foo()
-## 这种写法不一定能够兼容所有 shell，兼容的写法是：
-foo() 
-{
+foo() {
     ...
-
 }
 ```
-    
----
-### printf format
+
+### 2.3 string compare to avoid pattern match without quote
 ```bash
-printf "$foo"
-### 如果$foo 变量的值中包括\或者%符号，上面命令的执行结果可能会出乎你的意料之外。
-下面是正确的写法：
-printf %s "$foo"
-
-printf '%s\n' "$foo"
-```
-
----
-## 2. semantic
-### for loop style
-``` bash
-for arg in [list] 
-do 
- command(s)… 
-done 
-  
-for file in "$( find $directory -type l )"
-do 
-  echo "$file" 
-done | sort                  # Otherwise file list is unsorted. 
-  
-c-style syntax 
-  
-# oneline 
-for ((i=1; i <=6885; i++)); do n=$(printf '%04d' $i); f="swe-vm-kcr-cats024190m2_$n"; [[ -e $f ]] || echo "$f no there"; done
+if [[ $foo == "$bar" ]]; then
+fi
 ```
 
 
-# II. FAQ & Context
-## 2.1 What startup files are read by the shell? (shell configuration)
+# III. FAQ & Context
+## 3.1 What startup files are read by the shell? (shell configuration)
 [Unix Faq](http://hayne.net/MacDev/Notes/unixFAQ.html#shellStartup)
 
 You can customize the behaviour of the shells you use by editing the "startup files" that are read when a shell starts up. 
