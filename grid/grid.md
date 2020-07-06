@@ -272,12 +272,14 @@ The qalter utility allows users to change the attributes of a batch job. The qal
 ```bash
 # adjust the job priority:
 qalter -P <priority> <job_id_list>
+qalter -l h_vmem=500M,h_rt=hh:mm:ss <job_id>
 
 # To test/verify a job requset is available:
 qalter -w p 9068517
 
 # query the Grid Engine for hints about why your job hasn't yet run this way
 qalter -w v job_id
+
 
 # adjust the mt setting to make the job submitted rather than 'qw'
 qalter -pt mt 1
