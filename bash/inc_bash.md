@@ -7,6 +7,7 @@ Table of Contents
       * [1.2 Lists](#12-lists)
       * [1.3 Subshell](#13-subshell)
       * [1.4 Job Control Basics](#14-job-control-basics)
+      * [1.5 Coding Skill](#15-Coding-Skill)
    * [II. pitfalls](#ii-pitfalls)
          * [2.1 passing args](#21-passing-args)
          * [2.2 function def (portable)](#22-function-def-portable)
@@ -96,7 +97,27 @@ If a command is followed by a ‘&’ and job control is not active, the default
 + [1] 25647
 indicating that this job is job number 1 and that the process ID of the last process in the pipeline associated with this job is 25647. All of the processes in a single pipeline are members of the same job. Bash uses the job abstraction as the basis for job control.#---
 
+## 1.5 Coding Skill
+### 1.5.1 after shebang, insert below line
+```bash
+set -xeuo pipefail
+```
 
+### 1.5.2 flock to avoid same script to run several times
+```bash
+flock --wait 5 -e "lock_myscript" -c "bash myscript.sh"
+```
+
+### 1.5.3 kill all child process if there is when the script is accidently exit 
+```bash
+# put below line at the beginning block
+trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
+```
+
+### 1.5.4 timeout the command excuting time
+```
+timeout 600s <script|command> arg1 arg2
+```
 
 
 ---
