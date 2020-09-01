@@ -11,7 +11,7 @@ Table of Contents
    * [3. del key and merge dicts](#3-del-key-and-merge-dicts)
    * [4. GIL](#4-gil)
    * [5. remove duplicated items in list](#5-remove-duplicated-items-in-list)
-   * [6. **kwargs and *args (mutable arguments passed to function)](#6-kwargs-and-args-mutable-arguments-passed-to-function)
+   * [6. \*\*kwargs and \*args (mutable arguments passed to function)](#6-kwargs-and-args-mutable-arguments-passed-to-function)
    * [8. __new__ and __init__](#8-__new__-and-__init__)
    * [9. map(...): map(function, sequence[, sequence, ...]) -&gt; list](#9-map-mapfunction-sequence-sequence----list)
    * [10. filter(...): filter(function or None, sequence) -&gt; list, tuple, or string](#10-filter-filterfunction-or-none-sequence---list-tuple-or-string)
@@ -25,15 +25,15 @@ Table of Contents
 
 
 # I. Lessons #
-## generator: retrun an iterator (generator iterator), call be "next()" to execute until it raises an exception
+## 1.1 generator: retrun an iterator (generator iterator), call be "next()" to execute until it raises an exception
 ```python
 use () to generate a generator object
 g = ( x*x for x in range(100) )
 ```
 
-## decorators: a function use function as input arguments to add addition feature without modify original function
+## 1.2 decorators: a function use function as input arguments to add addition feature without modify original function
 
-#### function decorator
+### function decorator
 ```python
 import time
 def decorator(func):
@@ -52,13 +52,71 @@ def func():
 func()
 ```
 
-# II. Quiz #
-### 1. sum
+## 1.3 re
+> re.escape to escape meta character use (?:aaa|bbb) to group re match
+
+## 1.4 SET operations
+s.update(t) s |= t return set s with elements added from t 
+s.intersection_update(t) s &= t return set s keeping only elements also found in t s.
+difference_update(t) s -= t return set s after removing elements found in t s.
+symmetric_difference_update(t) s ^= t return set s with elements from s or t but not both s.add(x) add element x to set s 
+s.remove(x) remove x from set s, raises KeyError if not present s.discard(x) removes x from set s if present 
+s.pop() remove and return an arbitrary element from s; raises KeyError if empty s.clear() remove all elements from set s
+```python
+use SET to do one loop to find the pair whose summary is 6
+(use space to exchange time)
+    s1 = set([1, 3, 2, 5, 4])
+    s = frozenset([1, 3, 2, 5, 4])
+    r = []
+    for i in s:
+       s1.discard(i)
+       t = 6 - i
+       if t in s1:
+           r.append([i, t])
+           s1.discard(t)
+```
+
+## 1.5 sorted instance
+```python
+    >>> l
+    ['Chr1-10.txt', 'Chr1-1.txt', 'Chr1-2.txt', 'Chr1-14.txt', 'Chr1-3.txt', 'Chr1-20.txt', 'Chr1-5.txt']
+    >>> sorted(l, key = lambda d: int(d.split('-')[-1].split('.')[0]))
+    ['Chr1-1.txt', 'Chr1-2.txt', 'Chr1-3.txt', 'Chr1-5.txt', 'Chr1-10.txt', 'Chr1-14.txt', 'Chr1-20.txt']
+    >>> l
+    ['Chr1-10.txt', 'Chr1-1.txt', 'Chr1-2.txt', 'Chr1-14.txt', 'Chr1-3.txt', 'Chr1-20.txt', 'Chr1-5.txt']
+listrt
+    >>> print (l.sort.__doc__)
+    L.sort(cmp=None, key=None, reverse=False) -- stable sort *IN PLACE*;
+    cmp(x, y) -> -1, 0, 1
+    >>> l = [('b',2),('a',1),('c',3)]
+    >>> l.sort(key=lambda x:x[1])
+    >>> l
+    [('a', 1), ('b', 2), ('c', 3)]
+
+    ## dictrted
+    >>> d = {'banana':3, 'apple':4, 'pear':1, 'orange':2}
+    >>> import collections
+    >>> collections.OrderedDict(sorted(d.items(),key = lambda t:t[0]))
+    OrderedDict([('apple', 4), ('banana', 3), ('orange', 2), ('pear', 1)])
+    >>> collections.OrderedDict(sorted(d.items(),key = lambda t:t[1]))
+    OrderedDict([('pear', 1), ('orange', 2), ('banana', 3), ('apple', 4)])
+
+```
+
+# II. Snippet #
+## 2.1 check python script syntax
+``` python
+    python -m <py_script>.py  #python 2
+    python -m py_compile  <py_script>.py  #python 3
+```
+
+# III. Quiz #
+## 1. sum
 ``` python
     sum(range(1,101))
 ```
 
-### 2. change global var in function
+## 2. change global var in function
 ```python
 g_v = 5
 def fn():

@@ -1,321 +1,215 @@
-#!/usr/bin/python
+#!/usr/local/bin/python3
 
 import sys
 import os
 import re
 
-## leetcode
-class Solution(object):
-    '''two eles added in list which equal target'''
-    def twoSum(self, nums, target):
-        """
-        :type nums: List[int]
-        :type target: int
-        :rtype: List[int]
-        """
-        s_num = sorted(nums)
-        i = 0
-        j = len(nums) - 1
-        while i < j :
-            if s_num[i] + s_num[j] == target: 
-                print "{}, {}".format(s_num[i], s_num[j])
-                if s_num[i] == s_num[j]:
-                    return [nums.index(s_num[i]), nums.index(s_num[j], nums.index(s_num[i]) + 1)]
-                else:
-                    return [nums.index(s_num[i]), nums.index(s_num[j])]
+from enum import Enum, unique
 
-            if s_num[i] + s_num[j] > target: 
-                j -= 1
-            else: 
-                i += 1
+## enum constant usage
+# @unique to assume no duplicate
+@unique
+class Weekday(Enum):
+    Sun = 0
+    Mon = 1
+    Tue = 2
+    Wed = 3
+    Thu = 4
+    Fri = 5
+    Sat = 6
 
+## OOP learning
+class Province:
+    # static var, Only keep one in mem
+    country = 'China'
 
-    def twoSum_1(self, nums, target):
-        """
-        :type nums: List[int]
-        :type target: int
-        :rtype: List[int]
-        """
-        idx = 0
-        n_set = set(nums)
-        for i in nums:
-            sub = target -i
-            if sub in n_set and sub in nums[idx + 1:]:
-                if i == target - i:
-                    print '[{},{}]'.format(idx, nums.index(target-i, idx + 1))
-                    return [idx, nums.index(target-i, idx + 1)]
-                else:
-                    print '[{},{}]'.format(idx, nums.index(target-i))
-                    return [idx, nums.index(target-i)]
-            idx += 1
+    def __init__(self, name):
+    #every obj has one
+        self.name = name
 
-class Sort(object):
-    ''' sort '''
-    def bubble_sort(self, nums):
-        ''' stable O(n2) '''
-        print "Before sort", nums, "\n",
-        for i in range(len(nums) - 1):
-            for j in range(len(nums) - i - 1):
-                if nums[j] > nums[j + 1]:
-                    # print ("switch {} -> {} ({} to {})".format(j, j+1, nums[j], nums[j+1]))
-                    nums[j], nums[j + 1] = nums[j + 1], nums[j] 
-        print "After sort", nums, "\n",
-        return nums
+    # class method, call by class, at least one cls parameter
+    @classmethod
+    def class_func(cls):
+        print ('class_func call')
 
-    def merge_sort(self, nums):
-        ''' stable O(nlogn); most used external sort; need O(n) space '''
-        def merge(left, right):
-            result = []
-
-    def quicksort(self, nums, outputs):
-        ''' instable O(nlogn) '''
-        pass
+    # static method, call by class, no default parameter
+    @staticmethod
+    def static_func():
+        print ('static_func call')
 
 
+class Person(object):
+    '''person'''
 
-def MergeSort(left, right):
-    i, j = 0, 0
-    result = []
-    while i < len(left) and j < len(right):
-        if left[i] <= right[j]:
-            result.append(left[i])
-            i += 1
+    ## XXX limit the instance could added attribution with __slots__
+    ## *only* work for current class (no impact sub-class)
+    __slots__ = ('__name', '_age')
+    #__slots__ = ('score', '_age')
+
+
+    def __init__(self, name, age):
+        ## make __name attribute private 
+        self.__name = name
+        self._age = age
+
+    def __str__(self):
+        return "Person object, Name: %s" % self.__name
+
+    ## use @property to make method to attribution call 
+    ## without setter, they culd not be set as attribute
+    @property
+    def name(self):
+        return self.__name
+
+    @property
+    def age(self):
+        return self._age
+
+    @age.setter
+    def age(self, age):
+        self._age = age
+
+    #
+    def play(self):
+        print('%s is playing.' % self.__name)
+
+    def watch(self):
+        if self._age >= 18:
+            print('%s is watching Movie' % self.__name)
         else:
-            result.append(right[j])
-            j += 1
-    print("i:{} j:{} result: {}: left:{} right:{}".format(i, j, result, left[i:],right[j:]))
-    result += left[i:] ##i or j already arrived the end of the list
-    result += right[j:]
-
-    print("results: ==> {}".format(result))
-    return result
+            print('%s is watching Batman' % self.__name)
 
 
-def SortByMerge(arr, size):
-    if size <= 1:
-        print("call SortByMerge return {} size {}".format(arr, size))
-        return arr
+class Student(Person):
+    ''' student '''
+    #__slots__ = ('score', 'grade')
 
-    i = int(size/2)
-    # print("call SortByMerge arr[:i] {} size: {}".format(arr[:i], i))
-    left = SortByMerge(arr[:i], i)
-    # print("call SortByMerge arr[i:] {} size: {}".format(arr[i:], i))
-    right = SortByMerge(arr[i:], size - i)
-    # print("call MergeSort {} {}".format(left, right))
-    return MergeSort(left, right)
+    def __init__(self, name, age, grade):
+        super(Student, self).__init__(name,age)
+        self._grade = grade
 
+    ## XXX make method become attribution call
+    @property
+    def grade(self):
+        return self._grade
 
-def mergeSort(nums):
-    def merge(left, right):
-        result = []
-        i = j = 0
-        while i < len(left) and j < len(right):
-            if left[i] <= right[j]:
-                result.append(left[i])
-                i += 1
-            else:
-                result.append(right[j])
-                j += 1
-        result = result + left[i:] + right[j:]
-        return result
+    @grade.setter
+    def grade(self,grade):
+        if not isinstance(grade, int):
+            raise ValueError("grade must be integer!")
+        if grade > 6 or grade < 1:
+            raise ValueError("grade must between 1 to 6!")
 
-    if len(nums) <= 1:
-        return nums
+        self._grade = grade
 
-    mid = len(nums) // 2
-    left = mergeSort(nums[:mid])
-    right = mergeSort(nums[mid:])
-    return merge(left, right)
+    @grade.deleter
+    def grade(self, grade):
+        del self._grade
 
-def get_uniq_intersection_set(arr1, arr2):
-    '''get uniq intersection set of two arrays'''
-    s = set(arr1)
-    intersection_set = s.intersection(set(arr2))
+    def study(self, course):
+        print('%s: %s is studying %s' % (self._grade,self.name,course))
 
-    print "uniq common cells of {} and {} is {}".format(arr1, arr2, intersection_set)
-    return intersection_set
+    def set_score(self, score):
+        self.score = score
 
 
+class Teacher(Person):
+    '''teacher'''
 
-def get_intersection_set(arr1, arr2):
-    '''get intersection set of two arrays, contain duplicate'''
-    r = {}
-    for e in arr1:
-        if e in r:
-            r[e] += 1
-        else:
-            r[e] = 1
+    def __init__(self, name, age, title):
+        super(Teacher, self).__init__(name, age)
+        self._title = title
 
-    results = []
-    for e in arr2:
-        if e in r and r[e] > 0:
-            results.append(e)
-            r[e] -= 1
+    @property
+    def title(self):
+        return self._title
 
-    print "common cells of {} and {} is {}".format(arr1, arr2, results)
-    return results
+    @title.setter
+    def title(self, title):
+        self._title = title
+
+    def teach(self, course):
+        print('%s%s is teaching %s.' % (self.name, self._title, course))
 
 
-class Node:
-    def __init__(self, data):
-        self.item = data
-        self.next = None
-        self.prev = None
+# public member could be accessed by: obj, class internal, derived class
+# private member ONLY could be accessed by: class internal
 
-class DoubleLinkList(object):
+
+class Goods(object):
+    '''static field to create attribute'''
+
     def __init__(self):
-        self._head = None
+        self.original_price = 100
+        self.discount = 0.8
 
-    def is_empty(self):
-        return self._head == None
+    def get_price(self):
+        new_price = self.original_price * self.discount
+        return new_price
 
-    def length(self):
-        cur = self._head
-        count = 0
-        while cur != None:
-            count += 1
-            cur = cur.next
-        return count
+    def set_price(self, value):
+        self.original_price = value
 
-    def travel(self):
-        cur = self._head
-        print ("walk the linklist from {}".format(cur.item))
-        while cur != None:
-            print("{} ".format(cur.item))
-            cur = cur.next
-        print("END")
+    def del_price(self, value):
+        del self.original_price
 
-    def add(self, item):
-        node = Node(item)
-        if self.is_empty():
-            self._head = node
-        else:
-            node.next = self._head
-            self._head.prev = node
-            self._head = node
-
-    def append(self, item):
-        node = Node(item)
-        if self.is_empty():
-            self._head = node
-        else:
-            cur = self._head
-            while cur.next != None:
-                cur = cur.next
-            cur.next = node
-            node.prev = cur
-
-    def search(self):
-        cur = self._head
-        while cur != None:
-            if cur.item == item:
-                return true
-            else:
-                cur = cur.next
-        return false
-
-    def insert(self, pos, item):
-        if pos <= 0 or pos > self.length() + 1:
-            print 'Error input for pos', pos
-        elif pos == 1:
-            self.add(item)
-        elif pos == self.length() + 1:
-            self.append(item)
-        else:
-            node = Node(item)
-            cur = self._head
-            count = 1
-            while count < (pos -1):
-                count += 1
-                cur = cur.next
-
-            node.prev = cur
-            node.next = cur.next
-
-            cur.next.prev = node
-            cur.next = node
-
-    def remove(self, item):
-        if self.is_empty():
-            print 'list is empty'
-            return
-        else:
-            cur = self._head
-            if cur.item == item:
-                if cur.next == None:
-                    self._head = None
-                else:
-                    cur.next.prev = None
-                    self._head = cur.next
-                return
-
-        while cur != None:
-            if cur.item == item:
-                cur.prev.next = cur.next
-                cur.next.prev = cur.prev
-                break
-            cur = cur.next
-
-def run_Linklist():
-    '''node link list operation'''
-    d_list = DoubleLinkList()
-    d_list.add('a')
-    d_list.append('b')
-    d_list.travel()
-
-    d_list.insert(2, 'd')
-    d_list.insert(2, 'c')
-    d_list.insert('c', 3)
-    d_list.travel()
-
-    d_list.append('e')
-    d_list.travel()
-    d_list.remove('d')
-    d_list.travel()
+    PRICE = property(get_price, set_price, del_price, 'price attribute description')
 
 
-
-
-def orderedbox(num, boxlist):
-    general = re.compile(r"(?:\w+\s+\w+)+")
-    old = re.compile(r"(?:[a-z]+\s+[a-z])+")
-    new = re.compile(r"(?:\d+\s+\d+)+")
-    result = []
-    old_l = []
-    new_l = []
-    for s in boxlist:
-        if re.search(old, s):
-            old_l.append(s)
-        if re.search(new, s):
-            new_l.append(s)
-    result = sorted(old_l)
-    result.extend(sorted(new_l))
-    print "result: {}".format(result)
-    return result
-    # l = sorted(s, key=lambda x: (re.search(old,x), re.search(new,x)))
-    # print l,
+def main_oop():
+    obj = Province('Hebei')
+    print (obj.name)
     
-    
+    print (Province.country)
+    Province.static_func()
+    Province.class_func()
+
+    print ("\n=================")
+    people = Person('Lee', 15)
+    print (people)
+    stu = Student('Jack', 15, 'grade 3')
+    print (stu)     ## call __str__
+    # print (stu.__name)    # ==> __name is private attribute
+    # stu.grade = 'grade 6' # ==> fail for grade setter 
+    print (stu.name) ## call __str__
+    print (stu._age)
+    stu.study('math')
+    ## stu.name = 'zzz'  ==> can't set attribute
+    stu.set_score(100)
+    print ("score: {} {}".format(stu.score, stu.name))
+    stu.watch()
+    #del stu.grade
+
+    print ("\n=================")
+    t = Teacher('Ma', 28, 'huang')
+    t.teach('Python design')
+    t.watch()
+
+
+    print ("\n=================")
+    obj = Goods()
+    obj.PRICE
+    obj.PRICE = 200
+    #del obj.PRICE(200)
+
 
 if __name__ == '__main__':
-    boxlist = ['ykc 82 01', 'eo first qpx', '09z cat hamster', '06f 12 25 6', 'az0 first qpx',
-                '236 cat dog rabbit snake']
-    orderedbox(6, boxlist)
-    # ltcode = Solution()
-    # ltcode.twoSum([3,3], 6) 
-    # ltcode.twoSum([2,5,7,11], 9) 
-    # ltcode.twoSum([-1,-2,-3,-4,-5], -8) 
 
-    # nums = [7, 5, 2, 4, 3, 5, 6, 1]
-    # st = Sort()
-    # st.bubble_sort(nums)
+    main_oop()
 
-    # arr = [12, 11, 5, 13, 5, 7, 6]
-    # ## print(SortByMerge(arr, len(arr)))
-    # ## print(mergeSort(arr))
+    ## open to extend
+    ## no open to modify
 
-    # get_uniq_intersection_set(arr, nums)
-    # get_intersection_set(arr, nums)
+    ## isinstance(), 
+    ## dir() to get object all attribution
 
-    ## run_Linklist()
+    ## getattr(), setattr(), hasattr()
 
+    ## MixIn
+
+
+    ## class special members: __doc__, __module__, __class__, __init__, __del__, __call__, __dict__, __str__, __slots__
+    
+    ## user defined class, __iter__, __next__ to implement 'for ... in'
+    ## __getitem__ to implement index operation of list
+    ## instance call directly __call__
