@@ -9,9 +9,9 @@ Table of Contents
       * [1.4 Job Control Basics](#14-job-control-basics)
       * [1.5 Coding Skill](#15-Coding-Skill)
    * [II. pitfalls](#ii-pitfalls)
-         * [2.1 passing args](#21-passing-args)
-         * [2.2 function def (portable)](#22-function-def-portable)
-         * [2.3 string compare to avoid pattern match without quote](#23-string-compare-to-avoid-pattern-match-without-quote)
+      * [2.1 passing args](#21-passing-args)
+      * [2.2 function def (portable)](#22-function-def-portable)
+      * [2.3 string compare to avoid pattern match without quote](#23-string-compare-to-avoid-pattern-match-without-quote)
    * [III. FAQ &amp; Context](#iii-faq--context)
       * [3.1 What startup files are read by the shell? (shell configuration)](#31-what-startup-files-are-read-by-the-shell-shell-configuration)
 
@@ -101,6 +101,8 @@ indicating that this job is job number 1 and that the process ID of the last pro
 ### 1.5.1 after shebang, insert below line
 ```bash
 set -xeuo pipefail
+## or run bash commands in terminal with the settings
+( set -xeuo pipefail; for i in $(ls -d test_dir{2..2}); do echo "tar cfz $i.tar.gz $i && rm -rf $i"; done)
 ```
 
 ### 1.5.2 flock to avoid same script to run several times
@@ -115,10 +117,20 @@ trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
 ```
 
 ### 1.5.4 timeout the command excuting time
-```
+```bash
 timeout 600s <script|command> arg1 arg2
 ```
 
+### 1.5.5 loop with number range
+```bash
+for i in $(seq -w 01 07); do echo -e  "\n vm-kcr$i ";  ssh  "vm-kcr$i"  "df -h /SCRATCH/ ; df -h /tmp/"; done;
+for i in {1..10}; do echo $i; done;
+```
+
+### 1.5.6 get case TAT over 360 secs from txt files of dirs
+```bash
+for d in $(ls -1d D202011*); do awk -F',' '/   \(/{tct=gensub(")","",1,$NF) + 0; if (tct >= 450){ print FILENAME, $1, tct}}' ${d}/Passed.txt ;  awk -F',' '/   \(/{tct=$2 + 0; if (tct >= 450){ print FILENAME, $1, tct}}' ${d}/Failed.txt; done
+```
 
 ---
 # II. pitfalls
@@ -146,6 +158,8 @@ fi
 
 
 # III. FAQ & Context
+[BASH Frequently Asked Questions](http://mywiki.wooledge.org/BashFAQ)
+
 ## 3.1 What startup files are read by the shell? (shell configuration)
 [Unix Faq](http://hayne.net/MacDev/Notes/unixFAQ.html#shellStartup)
 
