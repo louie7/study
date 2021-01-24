@@ -87,6 +87,11 @@ print @lines;
     perl -MData::Dumper -e '$n=0;  %h = map {;$n++;  $_ => $n;} (a..z); print Dumper(\%h);   $s="ab";  @a=reverse split("", $s);  $x = 0; $sum=0; for $i (@a){$tmp = $h{$i} * 26 ** $x; $sum += $tmp; $x++;}; print "${s}: is $sum";'
 ```
 
+## 2.10 run external command with IPC:Cmd
+```perl
+perl -MIPC::Cmd=run -e 'run(command => "ls ~/louie7", verbose =>1);'
+```
+
 ---
 ~~~
 # III. Sugar #
