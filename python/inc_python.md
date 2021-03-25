@@ -110,6 +110,12 @@ listrt
     python -m py_compile  <py_script>.py  #python 3
 ```
 
+## 2.2 install python package on OSX
+``` python
+[luyi@mbp700] ~/louie7 %
+python3.8 -m pip install html-table
+```
+
 # III. Quiz #
 ## 1. sum
 ``` python
